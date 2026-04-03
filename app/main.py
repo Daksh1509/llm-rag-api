@@ -10,6 +10,10 @@ from app.services.embedding_service import embedding_service
 from app.services.llm_service import llm_service
 from app.utils.config import get_settings
 from app.utils.logger import setup_logger
+import os
+# Reduce memory usage in production
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["OMP_NUM_THREADS"] = "1"
 
 settings = get_settings()
 logger = setup_logger("main")
