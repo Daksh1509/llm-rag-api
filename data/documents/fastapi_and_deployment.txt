@@ -1,0 +1,97 @@
+FastAPI is a modern, high-performance Python web framework for building APIs.
+It is built on top of Starlette for the web layer and Pydantic for data validation.
+FastAPI supports async and await natively, making it one of the fastest Python
+frameworks available, comparable to Node.js and Go in benchmarks.
+FastAPI automatically generates interactive API documentation using Swagger UI
+at the /docs endpoint and ReDoc at the /redoc endpoint.
+
+Pydantic is a Python library for data validation using type annotations.
+In FastAPI, all request bodies and responses are defined as Pydantic BaseModel
+classes. Pydantic v2 is significantly faster than v1 due to its Rust-based core
+called pydantic-core. Pydantic validates data at runtime and raises clear errors
+for invalid inputs, making APIs safer and more predictable.
+
+Uvicorn is an ASGI web server implementation for Python. It is the recommended
+server for running FastAPI applications. Uvicorn uses uvloop and httptools for
+extremely fast performance. In production, run Uvicorn with multiple workers:
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+Async programming in Python allows concurrent execution without multiple threads.
+The async def keyword defines a coroutine function. The await keyword pauses
+execution until an async operation completes. FastAPI uses asyncio under the hood.
+Using async endpoints allows FastAPI to handle thousands of concurrent requests
+without blocking, which is critical for LLM API services with high latency calls.
+
+Middleware in FastAPI intercepts every request before it reaches the route handler
+and every response before it is sent back to the client. Common middleware includes
+CORS (Cross-Origin Resource Sharing), logging, authentication, and rate limiting.
+The CORSMiddleware allows your API to be called from browser-based frontends.
+
+Lifespan in FastAPI (using asynccontextmanager) replaces the old on_event startup
+and shutdown decorators. Code before the yield runs at startup, code after runs
+at shutdown. This is the correct way to initialize expensive resources like ML
+models, database connections, and FAISS indexes once at startup.
+
+Docker is a platform for containerizing applications. A Dockerfile defines the
+steps to build a Docker image. A Docker image is a snapshot of the application
+and all its dependencies. A Docker container is a running instance of an image.
+Containerization ensures the application runs identically across development,
+staging, and production environments, eliminating dependency conflicts.
+
+A Dockerfile for Python applications typically uses python:3.11-slim as base,
+installs system dependencies, copies requirements.txt, installs Python packages,
+copies application source code, and defines the CMD to run the server.
+Multi-stage builds reduce final image size by separating build and runtime stages.
+
+Docker Compose is a tool for defining and running multi-container Docker
+applications using a YAML configuration file. In docker-compose.yml you define
+services, ports, environment variables, volumes, and health checks.
+Volumes persist data between container restarts, which is critical for keeping
+FAISS indexes and uploaded documents after a container is restarted.
+
+Environment Variables are key-value pairs used to configure applications
+without hardcoding secrets in source code. In Python, the python-dotenv library
+reads a .env file and loads its contents as environment variables. Pydantic
+Settings reads environment variables automatically using BaseSettings.
+Never commit your .env file to Git as it contains API keys and secrets.
+
+Render is a cloud platform for deploying web services. It supports Python,
+Node.js, Docker, and static sites. Render provides a free tier for web services
+that automatically deploys from a connected GitHub repository on every push.
+Render automatically provides HTTPS, custom domains, and health checks.
+
+AWS EC2 (Elastic Compute Cloud) is a virtual machine service from Amazon Web
+Services. You can deploy Docker containers on EC2 by installing Docker, pulling
+your image, and running docker-compose. EC2 gives full control over the server
+but requires more manual setup compared to managed platforms like Render.
+
+Health checks are API endpoints that return the current status of the application.
+A health check endpoint typically returns HTTP 200 with a JSON body indicating
+the service is running, the FAISS index is loaded, and all dependencies are ready.
+Health checks are used by Docker, Kubernetes, and cloud platforms to detect
+and restart unhealthy service instances automatically.
+
+Logging is the practice of recording events and data during application execution.
+Structured JSON logging is preferred in production because logs can be parsed
+by monitoring tools like Datadog, CloudWatch, and Grafana. Python's logging
+module combined with python-json-logger produces JSON-formatted log lines.
+Every log entry should include timestamp, log level, module name, and message.
+
+Caching stores the result of expensive operations so repeated identical requests
+can be served instantly. In the RAG API, query responses are cached using an
+MD5 hash of the normalized query string as the cache key. TTLCache from the
+cachetools library provides an in-memory cache with automatic expiry (TTL).
+For production at scale, replace TTLCache with Redis for distributed caching
+across multiple API server instances.
+
+Rate Limiting protects APIs from abuse by limiting how many requests a client
+can make in a given time window. Common strategies include fixed window,
+sliding window, and token bucket algorithms. In FastAPI, rate limiting can be
+implemented using the slowapi library or via API gateway services like
+AWS API Gateway or Cloudflare.
+
+Security best practices for production APIs include always using HTTPS,
+validating all inputs with Pydantic, never exposing raw error messages to clients,
+storing secrets in environment variables not in code, using non-root users
+inside Docker containers, and implementing authentication using JWT tokens
+or API keys for protected endpoints.

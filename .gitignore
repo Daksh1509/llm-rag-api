@@ -1,0 +1,22 @@
+# Environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+
+# FAISS artifacts (large binary files)
+embeddings/*.bin
+embeddings/*.json
+
+# Data
+data/documents/*.pdf
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+*.log"test_openai.py" 
